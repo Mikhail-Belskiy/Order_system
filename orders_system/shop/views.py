@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import *
-from .serializars import *
+from .serializers import *
 from .tasks import send_order_email
 import pandas as pd
 from django.core.files.storage import default_storage

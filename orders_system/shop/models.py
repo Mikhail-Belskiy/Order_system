@@ -25,6 +25,9 @@ class User(AbstractUser):
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
 
+    def __str__(self):
+        return self.username
+
 # Поставщик
 class Supplier(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -35,6 +38,9 @@ class Supplier(models.Model):
         verbose_name = "Поставщик"
         verbose_name_plural = "Поставщики"
 
+    def __str__(self):
+        return self.name
+
 # Категория и товар
 class Category(models.Model):
     name = models.CharField(max_length=200)
@@ -42,6 +48,9 @@ class Category(models.Model):
     class Meta:
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
+
+    def __str__(self):
+        return self.name
 
 class ProductProperty(models.Model):
     name = models.CharField(max_length=100)
@@ -51,6 +60,9 @@ class ProductProperty(models.Model):
     class Meta:
         verbose_name = "Характеристика товара"
         verbose_name_plural = "Характеристики товара"
+
+    def __str__(self):
+        return f"{self.name}: {self.value}"
 
 class Product(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE)
@@ -63,6 +75,9 @@ class Product(models.Model):
     class Meta:
         verbose_name = "Товар"
         verbose_name_plural = "Товары"
+
+    def __str__(self):
+        return self.name
 
 # Заказ
 class Order(models.Model):
@@ -79,6 +94,9 @@ class Order(models.Model):
         verbose_name = "Заказ"
         verbose_name_plural = "Заказы"
 
+    def __str__(self):
+        return f"Order #{self.pk} ({self.customer.username})"
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
@@ -89,3 +107,6 @@ class OrderItem(models.Model):
     class Meta:
         verbose_name = "Заказ товара"
         verbose_name_plural = "Заказ товара"
+
+    def __str__(self):
+        return f"{self.product.name} x {self.quantity}"
