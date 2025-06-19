@@ -4,7 +4,7 @@ from import_export import resources, fields
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget
 
-admin.site.register([User, ProductProperty, Category, Supplier, Order, OrderItem])
+admin.site.register([User, ProductProperty, Category, Supplier, Order, OrderItem, Cart, CartItem])
 
 class ProductPropertyInline(admin.TabularInline):
     model = ProductProperty

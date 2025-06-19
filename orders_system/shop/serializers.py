@@ -8,10 +8,15 @@ class ProductPropertySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     properties = ProductPropertySerializer(many=True, required=False)
+    supplier_name = serializers.CharField(source='supplier.name', read_only=True)
+    description = serializers.CharField(default='', required=False)
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'supplier', 'category', 'price', 'stock', 'is_active', 'properties')
+        fields = (
+            'id', 'name', 'description', 'supplier', 'supplier_name',
+            'category', 'price', 'stock', 'is_active', 'properties'
+        )
 
     def create(self, validated_data):
         properties = validated_data.pop('properties', [])
@@ -65,3 +70,36 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+class CartItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name")
+    price = serializers.DecimalField(source="product.price", max_digits=9, decimal_places=2)
+    supplier = serializers.CharField(source='product.supplier.name')
+    class Meta:
+        model = CartItem
+        fields = ('id', 'product', 'product_name', 'supplier', 'quantity', 'price')
+
+class CartSerializer(serializers.ModelSerializer):
+    items = CartItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Cart
+        fields = ('id', 'user', 'items')
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        fields = (
+            'id', 'user', 'last_name', 'first_name', 'middle_name', 'email', 'phone',
+            'address', 'city', 'street', 'house', 'building', 'structure', 'apartment'
+        )
+        extra_kwargs = {"user": {"read_only": True}}
+
+class OrderHistorySerializer(serializers.ModelSerializer):
+    total_sum = serializers.SerializerMethodField()
+
+class Meta:
+    model = Order
+    fields = ("id", "date", "status", "total_sum")
+
+def get_total_sum(self, obj):
+    return sum([item.price * item.quantity for item in obj.items.all()])
