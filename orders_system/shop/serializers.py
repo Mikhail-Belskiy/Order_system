@@ -9,12 +9,11 @@ class ProductPropertySerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     properties = ProductPropertySerializer(many=True, required=False)
     supplier_name = serializers.CharField(source='supplier.name', read_only=True)
-    description = serializers.CharField(default='', required=False)
 
     class Meta:
         model = Product
         fields = (
-            'id', 'name', 'description', 'supplier', 'supplier_name',
+            'id', 'name', 'supplier', 'supplier_name',
             'category', 'price', 'stock', 'is_active', 'properties'
         )
 
@@ -97,9 +96,9 @@ class ContactSerializer(serializers.ModelSerializer):
 class OrderHistorySerializer(serializers.ModelSerializer):
     total_sum = serializers.SerializerMethodField()
 
-class Meta:
-    model = Order
-    fields = ("id", "date", "status", "total_sum")
+    class Meta:
+        model = Order
+        fields = ("id", "date", "status", "total_sum")
 
-def get_total_sum(self, obj):
-    return sum([item.price * item.quantity for item in obj.items.all()])
+    def get_total_sum(self, obj):
+        return sum([item.price * item.quantity for item in obj.items.all()])

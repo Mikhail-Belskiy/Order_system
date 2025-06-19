@@ -8,11 +8,10 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Product, Order, OrderItem, Supplier, Category, Cart, CartItem, Contact
 from .serializers import (
     ProductSerializer,
-    OrderSerializer,
+    ContactSerializer,
     UserSerializer,
     CartSerializer,
-    OrderItemSerializer,
-    serializers as myserializers, OrderHistorySerializer
+    OrderHistorySerializer
 )
 from django.contrib.auth import get_user_model
 from rest_framework import filters
@@ -55,19 +54,15 @@ class CartDetailView(generics.RetrieveAPIView):
 
     def get(self, request):
         cart, _ = Cart.objects.get_or_create(user=request.user)
-        items = CartItem.objects.filter(cart=cart)
-        serializer = CartSerializer(items, many=True)
-        result = []
-        for item in serializer.data:
-            result.append({
-                "product": item["product"],
-                "наименование_товара": item["product_name"],
-                "магазин": item["supplier"],
-                "цена": item["price"],
-                "количество": item["quantity"],
-                "сумма": str(round(float(item["quantity"]) * float(item["price"]), 2))
-            })
-        return Response(result)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+
+    class Meta:
+        model = Cart
+        fields = ('id', 'user', 'items', 'total_sum')
+
+    def get_total_sum(self, obj):
+        return sum(item.product.price * item.quantity for item in obj.items.all())
 
 # Добавление товара в корзину
 class AddToCartView(APIView):
@@ -98,19 +93,15 @@ from rest_framework import serializers
 # удаление из корзины
 class RemoveFromCartView(APIView):
     permission_classes = [permissions.IsAuthenticated]
-def post(self, request):
-    cart, _ = Cart.objects.get_or_create(user=request.user)
-    product_id = request.data.get('product_id')
-    try:
-        item = CartItem.objects.get(cart=cart, product_id=product_id)
-        item.delete()
-        return Response({"status": "removed"})
-    except CartItem.DoesNotExist:
-        return Response({"error": "not found"}, status=404)
-
-class ContactSerializer(serializers.Serializer):
-    address = serializers.CharField(max_length=255)
-    phone = serializers.CharField(max_length=32)
+    def post(self, request):
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        product_id = request.data.get('product_id')
+        try:
+            item = CartItem.objects.get(cart=cart, product_id=product_id)
+            item.delete()
+            return Response({"status": "removed"})
+        except CartItem.DoesNotExist:
+            return Response({"error": "not found"}, status=404)
 
 class ContactView(generics.ListCreateAPIView):
     serializer_class = ContactSerializer

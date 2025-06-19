@@ -106,7 +106,7 @@ class OrderItem(models.Model):
 
     class Meta:
         verbose_name = "Заказ товара"
-        verbose_name_plural = "Заказ товара"
+        verbose_name_plural = "Заказы товаров"
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
