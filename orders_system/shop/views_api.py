@@ -13,7 +13,6 @@ from .serializers import (
     CartSerializer,
     OrderHistorySerializer
 )
-from django.contrib.auth import get_user_model
 from rest_framework import filters
 User = get_user_model()
 
@@ -143,5 +142,5 @@ class CheckoutView(APIView):
 class UserOrdersView(generics.ListAPIView):
     serializer_class = OrderHistorySerializer
     permission_classes = [permissions.IsAuthenticated]
-def get_queryset(self):
-    return Order.objects.filter(customer=self.request.user).order_by('-date')
+    def get_queryset(self):
+        return Order.objects.filter(customer=self.request.user).order_by('-date')
