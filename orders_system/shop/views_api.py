@@ -14,6 +14,8 @@ from .serializers import (
     OrderHistorySerializer
 )
 from rest_framework import filters
+from .tasks import send_order_email
+
 User = get_user_model()
 
 # Регистрация
@@ -136,6 +138,7 @@ class CheckoutView(APIView):
                 quantity=item.quantity, price=item.product.price
             )
         cart.items.all().delete()  # Очистить корзину
+        send_order_email.delay(order.id)
         return Response({'status': 'Заказ оформлен', 'order_id': order.id})
 
 # Заказы пользователя
